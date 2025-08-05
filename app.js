@@ -93,6 +93,7 @@ window.exportData = async () => {
   const end = document.getElementById("endDate").value;
   if (!start || !end) return alert("Select both start and end date.");
 
+  const toolsSet = tools;
   const shifts = ["Shift A", "Shift B", "Shift C"];
   const header = ["Tool"];
   const dateShiftKeys = [];
@@ -109,7 +110,7 @@ window.exportData = async () => {
 
   const dataMatrix = [header];
 
-  for (const tool of tools) {
+  for (const tool of toolsSet) {
     const row = [tool];
     for (const { date, shift } of dateShiftKeys) {
       const snapshot = await get(ref(db, `${date}/${shift}`));
@@ -132,6 +133,7 @@ window.exportData = async () => {
     });
     return { wch: maxLen };
   });
+
   ws['!cols'] = colWidths;
 
   const wb = XLSX.utils.book_new();
