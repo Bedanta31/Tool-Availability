@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <title>Shift Tool Availability Tracker</title>
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="style.css" />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 </head>
 <body>
@@ -49,9 +49,10 @@
     <button onclick="exportData()">Export to Excel</button>
   </div>
 
+  <!-- Scripts -->
   <script type="module" src="app.js"></script>
 
-  <!-- Disable right-click and common DevTools shortcuts -->
+  <!-- Disable right-click and DevTools shortcuts -->
   <script>
     document.addEventListener('contextmenu', function (e) {
       e.preventDefault();
@@ -59,11 +60,17 @@
     });
 
     document.addEventListener('keydown', function (e) {
-      if (e.key === "F12" ||
-          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
-          (e.ctrlKey && ['U', 'S', 'P'].includes(e.key))) {
+      if (e.key === "F12") {
         e.preventDefault();
-        alert("Developer tools and shortcuts are disabled!");
+        alert("Developer tools are disabled!");
+      }
+
+      if (
+        (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+        (e.ctrlKey && (e.key === 'U' || e.key === 'S' || e.key === 'P'))
+      ) {
+        e.preventDefault();
+        alert("This action is disabled!");
       }
     });
   </script>
