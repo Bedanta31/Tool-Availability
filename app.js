@@ -14,7 +14,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-const tools = ["Torch", "Multimeter", "Clamp meter", "LT Handle", "HT Handle", "Temperature Gun", "Allen Key", "Plier", "Screw Driver", "EOT Remote", "Store Key"];
+const tools = ["Torch", "Multimeter", "Clamp meter", "LT Handle", "HT Handle", "Temperature Gun", "Allen Key", "Plier", "Screw Driver", "EOT Crane Remote", "Store Key"];
 const toolList = document.getElementById("toolList");
 
 tools.forEach(tool => {
