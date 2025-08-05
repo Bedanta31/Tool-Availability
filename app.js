@@ -90,13 +90,38 @@ window.exportData = async () => {
   const end = document.getElementById("endDate").value;
   if (!start || !end) return alert("Select both start and end date.");
 
-  const toolsSet = tools;
   const shifts = ["Shift A", "Shift B", "Shift C"];
-  const header = ["Tool"];
-  const dateShiftKeys = [];
-
   const dateList = [];
   for (let d = new Date(start); d <= new Date(end); d.setDate(d.getDate() + 1)) {
-    const formatted = d.toISOString().split('T')[0];
-    dateList.push(formatted);
+    dateList.push(d.toISOString().split('T')[0]);
   }
+
+  const csvRows = [];
+  const header = ["Date", "Shift", ...tools];
+  csvRows.push(header.join(","));
+
+  for (const date of dateList) {
+    for (const shift of shifts) {
+      const dataSnap = await get(child(ref(db), `${date}/${shift}`));
+      if (dataSnap.exists()) {
+        const data = dataSnap.val();
+        const row = [date, shift, ...tools.map(t => `"${data[t] || ""}"`)];
+        csvRows.push(row.join(","));
+      }
+    }
+  }
+
+  if (csvRows.length === 1) {
+    alert("No data found in the selected date range.");
+    return;
+  }
+
+  const csvContent = csvRows.join("\n");
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `tools_data_${start}_to_${end}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+};
