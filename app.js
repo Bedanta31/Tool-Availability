@@ -30,14 +30,17 @@ document.getElementById("submitForm").addEventListener("submit", async (e) => {
   const path = `${date}/${shift}`;
   const dataRef = ref(db, path);
   const snapshot = await get(dataRef);
+
   if (snapshot.exists()) {
     alert(`Data already exists for ${date} ${shift}. You can't change it. Contact To Admin 📞`);
     return;
   }
+
   const data = {};
   toolList.querySelectorAll("input[type=checkbox]").forEach(cb => {
     data[cb.value] = cb.checked ? "Unavailable ❌" : "Available ✅";
   });
+
   await set(dataRef, data);
   alert(`Tools data saved for ${date} ${shift}`);
   e.target.reset();
@@ -88,45 +91,50 @@ window.loadData = async () => {
 window.exportData = async () => {
   const start = document.getElementById("startDate").value;
   const end = document.getElementById("endDate").value;
-  if (!start || !end) {
-    alert("Select both start and end date.");
-    return;
-  }
+  if (!start || !end) return alert("Select both start and end date.");
 
   const shifts = ["Shift A", "Shift B", "Shift C"];
-  const dateList = [];
+  const header = ["Tool"];
+  const dateShiftKeys = [];
 
+  const dateList = [];
   for (let d = new Date(start); d <= new Date(end); d.setDate(d.getDate() + 1)) {
-    const formatted = d.toISOString().split('T')[0];
-    dateList.push(formatted);
+    const dateStr = d.toISOString().split("T")[0];
+    dateList.push(dateStr);
+    shifts.forEach(shift => {
+      header.push(`${dateStr} (${shift})`);
+      dateShiftKeys.push({ date: dateStr, shift });
+    });
   }
 
-  const csvRows = [];
-  const header = ["Date", "Shift", ...tools];
-  csvRows.push(header.join(","));
+  const dataMatrix = [header];
 
-  for (const date of dateList) {
-    for (const shift of shifts) {
-      const dataSnap = await get(child(ref(db), `${date}/${shift}`));
-      if (dataSnap.exists()) {
-        const data = dataSnap.val();
-        const row = [date, shift, ...tools.map(t => `"${data[t] || ""}"`)];
-        csvRows.push(row.join(","));
+  for (const tool of tools) {
+    const row = [tool];
+    for (const { date, shift } of dateShiftKeys) {
+      const snapshot = await get(ref(db, `${date}/${shift}`));
+      if (snapshot.exists() && snapshot.val()[tool]) {
+        row.push(snapshot.val()[tool]);
+      } else {
+        row.push("-");
       }
     }
+    dataMatrix.push(row);
   }
 
-  if (csvRows.length === 1) {
-    alert("No data found in the selected date range.");
-    return;
-  }
+  const ws = XLSX.utils.aoa_to_sheet(dataMatrix);
 
-  const csvContent = csvRows.join("\n");
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `tools_data_${start}_to_${end}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  const colWidths = dataMatrix[0].map((_, colIndex) => {
+    let maxLen = 6;
+    dataMatrix.forEach(row => {
+      const val = row[colIndex] ? row[colIndex].toString() : '';
+      maxLen = Math.min(Math.max(maxLen, val.length), 17);
+    });
+    return { wch: maxLen };
+  });
+  ws['!cols'] = colWidths;
+
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, "Tool Availability");
+  XLSX.writeFile(wb, `Tool_Availability_${new Date().toISOString().split("T")[0]}.xlsx`);
 };
