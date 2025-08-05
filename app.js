@@ -31,7 +31,7 @@ document.getElementById("submitForm").addEventListener("submit", async (e) => {
   const dataRef = ref(db, path);
   const snapshot = await get(dataRef);
   if (snapshot.exists()) {
-    alert(`Data already exists for ${date} ${shift}. You can't change it.   Contact To Admin 📞`);
+    alert(`Data already exists for ${date} ${shift}. You can't change it. Contact To Admin 📞`);
     return;
   }
   const data = {};
@@ -88,12 +88,17 @@ window.loadData = async () => {
 window.exportData = async () => {
   const start = document.getElementById("startDate").value;
   const end = document.getElementById("endDate").value;
-  if (!start || !end) return alert("Select both start and end date.");
+  if (!start || !end) {
+    alert("Select both start and end date.");
+    return;
+  }
 
   const shifts = ["Shift A", "Shift B", "Shift C"];
   const dateList = [];
+
   for (let d = new Date(start); d <= new Date(end); d.setDate(d.getDate() + 1)) {
-    dateList.push(d.toISOString().split('T')[0]);
+    const formatted = d.toISOString().split('T')[0];
+    dateList.push(formatted);
   }
 
   const csvRows = [];
