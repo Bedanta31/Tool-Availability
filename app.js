@@ -96,4 +96,7 @@ window.exportData = async () => {
   const dateShiftKeys = [];
 
   const dateList = [];
-  for (let d = new Date(start); d <= new Date(end); d.setDate(d.getDate() + 1
+  for (let d = new Date(start); d <= new Date(end); d.setDate(d.getDate() + 1)) {
+    const formatted = d.toISOString().split('T')[0];
+    dateList.push(formatted);
+  }
