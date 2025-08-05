@@ -50,5 +50,22 @@
   </div>
 
   <script type="module" src="app.js"></script>
+
+  <!-- Disable right-click and common DevTools shortcuts -->
+  <script>
+    document.addEventListener('contextmenu', function (e) {
+      e.preventDefault();
+      alert("Right-click is disabled!");
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (e.key === "F12" ||
+          (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) ||
+          (e.ctrlKey && ['U', 'S', 'P'].includes(e.key))) {
+        e.preventDefault();
+        alert("Developer tools and shortcuts are disabled!");
+      }
+    });
+  </script>
 </body>
 </html>
